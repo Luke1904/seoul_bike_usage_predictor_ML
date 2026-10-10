@@ -1,37 +1,22 @@
-# Python
 __pycache__/
 *.py[cod]
-*.pyo
 
-# Virtual environments
-venv/
 .venv/
+venv/
 env/
-.env/
 
-# Jupyter
 .ipynb_checkpoints/
 
-# IDE
 .vscode/
 .idea/
 
-# OS files
 .DS_Store
 Thumbs.db
+*:Zone.Identifier
 
-# Secrets
 .env
 *.key
 
-# Zone identifier files
-*:Zone.Identifier
-
-# ML / generated files
-*.pkl
-*.joblib
-
-# LaTeX temporary files
 *.aux
 *.log
 *.out
