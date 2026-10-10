@@ -24,6 +24,9 @@ Thumbs.db
 .env
 *.key
 
+# Zone identifier files
+*:Zone.Identifier
+
 # ML / generated files
 *.pkl
 *.joblib
