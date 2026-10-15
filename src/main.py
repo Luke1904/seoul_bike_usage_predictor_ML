@@ -10,7 +10,11 @@ from models import (
     fit_calendar_model,
     predict_calendar_model,
     fit_weather_model,
-    predict_weather_model
+    predict_weather_model,
+    fit_calendar_model_with_seasons,
+    predict_calendar_model_with_seasons,
+    fit_weather_model_with_seasons,
+    predict_weather_model_with_seasons
 )
 
 from evaluation import (

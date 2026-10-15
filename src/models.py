@@ -8,7 +8,13 @@ from sklearn.linear_model import LinearRegression # type: ignore
 
 TARGET = "Rented Bike Count"
 
-CALENDAR_FEATURES = [
+CALENDAR_FEATURES_WITHOUT_SEASONS = [
+    "Hour",
+    "Weekday",
+    "Holiday"
+]
+
+CALENDAR_FEATURES_WITH_SEASONS = [
     "Hour",
     "Weekday",
     "Seasons",
@@ -49,7 +55,7 @@ def create_calendar_model():
                 handle_unknown="ignore",
                 drop="first"
             ),
-            CALENDAR_FEATURES
+            CALENDAR_FEATURES_WITHOUT_SEASONS
         )
     ])
 
@@ -58,6 +64,22 @@ def create_calendar_model():
         ("model", LinearRegression())
     ])
 
+def create_calendar_model_with_seasons():
+    preprocessor = ColumnTransformer([
+        (
+            "calendar",
+            OneHotEncoder(
+                handle_unknown="ignore",
+                drop="first"
+            ),
+            CALENDAR_FEATURES_WITH_SEASONS
+        )
+    ])
+
+    return Pipeline([
+        ("preprocessor", preprocessor),
+        ("model", LinearRegression())
+    ])
 
 def create_weather_model():
     preprocessor = ColumnTransformer([
@@ -67,7 +89,7 @@ def create_weather_model():
                 handle_unknown="ignore",
                 drop="first"
             ),
-            CALENDAR_FEATURES
+            CALENDAR_FEATURES_WITHOUT_SEASONS
         ),
         (
             "weather",
@@ -81,20 +103,50 @@ def create_weather_model():
         ("model", LinearRegression())
     ])
 
+def create_weather_model_with_seasons():
+    preprocessor = ColumnTransformer([
+        (
+            "calendar",
+            OneHotEncoder(
+                handle_unknown="ignore",
+                drop="first"
+            ),
+            CALENDAR_FEATURES_WITH_SEASONS
+        ),
+        (
+            "weather",
+            StandardScaler(),
+            WEATHER_FEATURES
+        )
+    ])
+
+    return Pipeline([
+        ("preprocessor", preprocessor),
+        ("model", LinearRegression())
+    ])
 
 def fit_calendar_model(train):
     model = create_calendar_model()
 
     model.fit(
-        train[CALENDAR_FEATURES],
+        train[CALENDAR_FEATURES_WITHOUT_SEASONS],
         train[TARGET]
     )
 
     return model
 
+def fit_calendar_model_with_seasons(train):
+    model = create_calendar_model_with_seasons()
+
+    model.fit(
+        train[CALENDAR_FEATURES_WITH_SEASONS],
+        train[TARGET]
+    )
+
+    return model
 
 def fit_weather_model(train):
-    features = CALENDAR_FEATURES + WEATHER_FEATURES
+    features = CALENDAR_FEATURES_WITHOUT_SEASONS + WEATHER_FEATURES
 
     model = create_weather_model()
 
@@ -105,15 +157,37 @@ def fit_weather_model(train):
 
     return model
 
+def fit_weather_model_with_seasons(train):
+    features = CALENDAR_FEATURES_WITH_SEASONS + WEATHER_FEATURES
+
+    model = create_weather_model_with_seasons()
+
+    model.fit(
+        train[features],
+        train[TARGET]
+    )
+
+    return model
 
 def predict_calendar_model(model, data):
     return model.predict(
-        data[CALENDAR_FEATURES]
+        data[CALENDAR_FEATURES_WITHOUT_SEASONS]
     )
 
+def predict_calendar_model_with_seasons(model, data):
+    return model.predict(
+        data[CALENDAR_FEATURES_WITH_SEASONS]
+    )
 
 def predict_weather_model(model, data):
-    features = CALENDAR_FEATURES + WEATHER_FEATURES
+    features = CALENDAR_FEATURES_WITHOUT_SEASONS + WEATHER_FEATURES
+
+    return model.predict(
+        data[features]
+    )
+
+def predict_weather_model_with_seasons(model, data):
+    features = CALENDAR_FEATURES_WITH_SEASONS + WEATHER_FEATURES
 
     return model.predict(
         data[features]
