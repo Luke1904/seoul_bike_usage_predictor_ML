@@ -7,6 +7,8 @@ from models import (
     WEATHER_FEATURES,
     fit_hourly_baseline,
     predict_hourly_baseline,
+    fit_weekend_hourly_baseline,
+    predict_weekend_hourly_baseline,
     fit_calendar_model,
     predict_calendar_model,
     fit_weather_model,
@@ -62,6 +64,12 @@ def main():
         validation
     )
 
+    weekend_model = fit_weekend_hourly_baseline(train)
+    weekend_predictions = predict_weekend_hourly_baseline(
+        weekend_model,
+        validation
+    )
+
     calendar_model = fit_calendar_model(train)
 
     calendar_predictions = predict_calendar_model(
@@ -76,11 +84,26 @@ def main():
         validation
     )
 
+    calendar_model_with_seasons = fit_calendar_model_with_seasons(train)
+    calendar_predictions_with_seasons = predict_calendar_model_with_seasons(
+        calendar_model_with_seasons,
+        validation
+    )
+
+    weather_model_with_seasons = fit_weather_model_with_seasons(train)
+    weather_predictions_with_seasons = predict_weather_model_with_seasons(
+        weather_model_with_seasons,
+        validation
+    )
+
     results = evaluate_models(
         y_validation,
         baseline_predictions,
         calendar_predictions,
-        weather_predictions
+        weather_predictions,
+        weekend_predictions=weekend_predictions,
+        calendar_predictions_with_seasons=calendar_predictions_with_seasons,
+        weather_predictions_with_seasons=weather_predictions_with_seasons
     )
 
     improvement = calculate_weather_improvement(

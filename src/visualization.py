@@ -1,3 +1,5 @@
+from textwrap import fill
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -6,15 +8,31 @@ TARGET = "Rented Bike Count"
 
 
 def plot_hourly_demand(df):
-    hourly = df.groupby("Hour")[TARGET].mean()
+    hourly = df.groupby("Hour")[TARGET].agg(["mean", "std"])
 
     plt.figure(figsize=(12, 7))
-    plt.plot(hourly.index, hourly.values, marker="o")
+    plt.plot(
+        hourly.index,
+        hourly["mean"],
+        marker="o",
+        color="tab:blue",
+        label="Average demand"
+    )
+    # This band shows variation in observed rentals, not uncertainty in the mean.
+    plt.fill_between(
+        hourly.index,
+        hourly["mean"] - hourly["std"],
+        hourly["mean"] + hourly["std"],
+        color="tab:blue",
+        alpha=0.2,
+        label="Mean ± 1 standard deviation"
+    )
     plt.xlabel("Hour")
     plt.ylabel("Average Rented Bike Count")
     plt.title("Average Bike Demand by Hour")
     plt.xticks(range(24))
     plt.grid(alpha=0.3)
+    plt.legend()
     plt.tight_layout()
     plt.show()
 
@@ -231,8 +249,7 @@ def plot_model_performance(results):
 
     plt.xticks(
         x,
-        results["Model"],
-        rotation=15
+        [fill(name, width=22) for name in results["Model"]]
     )
 
     plt.ylabel("Prediction Error")

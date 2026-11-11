@@ -47,6 +47,30 @@ def predict_hourly_baseline(model, data):
     return predictions.to_numpy()
 
 
+def fit_weekend_hourly_baseline(train):
+    """Learn a separate hourly average for weekdays and weekends."""
+    return {
+        "day_hour": train.groupby(["IsWeekend", "Hour"])[TARGET].mean(),
+        "hour": fit_hourly_baseline(train),
+        "overall": train[TARGET].mean()
+    }
+
+
+def predict_weekend_hourly_baseline(model, data):
+    keys = pd.MultiIndex.from_frame(data[["IsWeekend", "Hour"]])
+    predictions = pd.Series(
+        model["day_hour"].reindex(keys).to_numpy(),
+        index=data.index
+    )
+    # Use training averages when a day/hour combination was not observed.
+    return (
+        predictions
+        .fillna(data["Hour"].map(model["hour"]))
+        .fillna(model["overall"])
+        .to_numpy()
+    )
+
+
 def create_calendar_model():
     preprocessor = ColumnTransformer([
         (

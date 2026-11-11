@@ -30,7 +30,10 @@ def evaluate_models(
     y_true,
     baseline_predictions,
     calendar_predictions,
-    weather_predictions
+    weather_predictions,
+    weekend_predictions=None,
+    calendar_predictions_with_seasons=None,
+    weather_predictions_with_seasons=None
 ):
     baseline_mae, baseline_rmse = calculate_metrics(
         y_true,
@@ -69,6 +72,16 @@ def evaluate_models(
             len(y_true)
         ]
     })
+
+    additional_models = [
+        ("Weekday/Weekend Hourly Mean Baseline", weekend_predictions),
+        ("Calendar + Seasons Linear Regression", calendar_predictions_with_seasons),
+        ("Calendar + Weather + Seasons Linear Regression", weather_predictions_with_seasons)
+    ]
+    for name, predictions in additional_models:
+        if predictions is not None:
+            mae, rmse = calculate_metrics(y_true, predictions)
+            results.loc[len(results)] = [name, mae, rmse, len(y_true)]
 
     return results
 

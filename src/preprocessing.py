@@ -75,6 +75,7 @@ def create_calendar_features(df):
     df = df.copy()
 
     df["Weekday"] = df[DATE_COLUMN].dt.day_name()
+    df["IsWeekend"] = df[DATE_COLUMN].dt.dayofweek >= 5
 
     df["Timestamp"] = (
         df[DATE_COLUMN]
