@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from pathlib import Path
 
@@ -110,3 +111,61 @@ results = evaluate_models_seasons(
 )
 
 print(results)
+
+# Extract metrics from results
+calendar_mae = mean_absolute_error(y_validation, calendar_predictions)
+calendar_rmse = np.sqrt(mean_squared_error(y_validation, calendar_predictions))
+calendar_mae_with_seasons = mean_absolute_error(y_validation, calendar_predictions_with_seasons)
+calendar_rmse_with_seasons = np.sqrt(mean_squared_error(y_validation, calendar_predictions_with_seasons))
+weather_mae = mean_absolute_error(y_validation, weather_predictions)
+weather_rmse = np.sqrt(mean_squared_error(y_validation, weather_predictions))
+weather_mae_with_seasons = mean_absolute_error(y_validation, weather_predictions_with_seasons)
+weather_rmse_with_seasons = np.sqrt(mean_squared_error(y_validation, weather_predictions_with_seasons))
+
+# Calculate percentage improvements
+mae_improvements = [
+    ((calendar_mae - calendar_mae_with_seasons) / calendar_mae) * 100,
+    ((weather_mae - weather_mae_with_seasons) / weather_mae) * 100
+]
+
+rmse_improvements = [
+    ((calendar_rmse - calendar_rmse_with_seasons) / calendar_rmse) * 100,
+    ((weather_rmse - weather_rmse_with_seasons) / weather_rmse) * 100
+]
+
+# Create percentage improvement graph
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+model_names = ['Calendar Model', 'Weather Model']
+x = np.arange(len(model_names))
+width = 0.35
+
+# MAE improvements
+bars1 = ax1.bar(x, mae_improvements, width, color=['#2E86AB', '#E63946'], alpha=0.8)
+ax1.set_ylabel('Improvement (%)', fontsize=12)
+ax1.set_title('MAE Improvement with Seasons Feature', fontsize=14, fontweight='bold')
+ax1.set_xticks(x)
+ax1.set_xticklabels(model_names)
+ax1.grid(axis='y', alpha=0.3)
+
+for bar in bars1:
+    height = bar.get_height()
+    ax1.text(bar.get_x() + bar.get_width()/2., height,
+             f'{height:.2f}%', ha='center', va='bottom', fontweight='bold')
+
+# RMSE improvements
+bars2 = ax2.bar(x, rmse_improvements, width, color=['#2E86AB', '#E63946'], alpha=0.8)
+ax2.set_ylabel('Improvement (%)', fontsize=12)
+ax2.set_title('RMSE Improvement with Seasons Feature', fontsize=14, fontweight='bold')
+ax2.set_xticks(x)
+ax2.set_xticklabels(model_names)
+ax2.grid(axis='y', alpha=0.3)
+
+for bar in bars2:
+    height = bar.get_height()
+    ax2.text(bar.get_x() + bar.get_width()/2., height,
+             f'{height:.2f}%', ha='center', va='bottom', fontweight='bold')
+
+plt.tight_layout()
+plt.savefig('seasonal_percentage_improvement.png', dpi=300, bbox_inches='tight')
+plt.show()
