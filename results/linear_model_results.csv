@@ -1,0 +1,8 @@
+Model,Family,MAE,RMSE,Validation Observations
+Hourly Mean Baseline,Baseline,384.7174294797396,493.5040839732291,665
+Weekday-Only Cyclical Linear Regression,Cyclical linear regression,376.8349188272127,506.23860550740807,480
+Weekend-Only Cyclical Linear Regression,Cyclical linear regression,350.6534790749327,458.4402343888141,185
+Calendar-Only Cyclical Linear Regression,Cyclical linear regression,385.41504105371286,524.5110464994992,665
+Calendar + Seasons Cyclical Linear Regression,Cyclical linear regression,351.5937480928152,464.94604688478904,665
+Calendar + Weather Cyclical Linear Regression,Cyclical linear regression,355.6296729910606,482.51665032257813,665
+Calendar + Weather + Seasons Cyclical Linear Regression,Cyclical linear regression,271.29995969684444,392.0226886157066,665

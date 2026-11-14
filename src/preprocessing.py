@@ -1,4 +1,5 @@
 from pathlib import Path
+import numpy as np
 import pandas as pd # type: ignore
 
 
@@ -81,6 +82,11 @@ def create_calendar_features(df):
         df[DATE_COLUMN]
         + pd.to_timedelta(df[HOUR_COLUMN], unit="h")
     )
+
+    hour_angle = 2 * np.pi * df[HOUR_COLUMN] / 24
+    for harmonic in range(1, 4):
+        df[f"HourSin{harmonic}"] = np.sin(harmonic * hour_angle)
+        df[f"HourCos{harmonic}"] = np.cos(harmonic * hour_angle)
 
     return df
 

@@ -1,0 +1,11 @@
+MAE Rank,Model,Family,MAE,RMSE,Validation Observations
+1,Calendar + Seasons Cyclical Random Forest Regressor,Cyclical random forest regression,263.0612889469589,405.0479167015144,665
+2,Calendar + Weather Cyclical Random Forest Regressor,Cyclical random forest regression,268.20060150375946,357.22123243019496,665
+3,Calendar + Weather + Seasons Cyclical Linear Regression,Cyclical linear regression,271.29995969684444,392.0226886157066,665
+4,Weekend-Only Cyclical Linear Regression,Cyclical linear regression,350.6534790749327,458.4402343888141,185
+5,Calendar + Seasons Cyclical Linear Regression,Cyclical linear regression,351.5937480928152,464.94604688478904,665
+6,Calendar + Weather Cyclical Linear Regression,Cyclical linear regression,355.6296729910606,482.51665032257813,665
+7,Calendar-Only Cyclical Random Forest Regressor,Cyclical random forest regression,362.7708252681966,464.82494445103737,665
+8,Weekday-Only Cyclical Linear Regression,Cyclical linear regression,376.8349188272127,506.23860550740807,480
+9,Hourly Mean Baseline,Baseline,384.7174294797396,493.5040839732291,665
+10,Calendar-Only Cyclical Linear Regression,Cyclical linear regression,385.41504105371286,524.5110464994992,665

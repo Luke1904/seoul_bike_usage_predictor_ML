@@ -1,0 +1,6 @@
+Model,Features,MAE,RMSE,CV MAE,max_depth,max_features,min_samples_leaf
+Hourly Mean Baseline,Hour,384.7174294797396,493.5040839732291,,,,
+Cyclical Random Forest Regressor,Calendar,362.7708252681966,464.82494445103737,458.9360888523073,,1.0,5.0
+Cyclical Random Forest Regressor,Calendar + Weather,268.20060150375946,357.22123243019496,230.18648825503357,,1.0,1.0
+Cyclical Random Forest Regressor,Calendar + Seasons,263.0612889469589,405.04791670151434,363.41474925466935,,1.0,5.0
+Cyclical Random Forest Regressor,Calendar + Weather + Seasons,281.1441203007519,373.78071371656694,231.56917617449662,,1.0,1.0

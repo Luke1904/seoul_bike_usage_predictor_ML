@@ -1,32 +1,17 @@
+"""Interactive exploratory run for the Seoul bike-demand project."""
+
 from pathlib import Path
 
-from preprocessing import prepare_dataset
-
+from evaluation import compare_weather_distributions
+from experiment import BikeDemandExperiment
 from models import (
     TARGET,
     WEATHER_FEATURES,
-    fit_hourly_baseline,
-    predict_hourly_baseline,
-    fit_weekend_hourly_baseline,
-    predict_weekend_hourly_baseline,
-    fit_calendar_model,
-    predict_calendar_model,
-    fit_weather_model,
-    predict_weather_model,
-    fit_calendar_model_with_seasons,
-    predict_calendar_model_with_seasons,
-    fit_weather_model_with_seasons,
-    predict_weather_model_with_seasons
+    HOURLY_BASELINE_NAME,
+    CALENDAR_CYCLICAL_NAME,
+    CALENDAR_WEATHER_CYCLICAL_NAME,
+    CALENDAR_WEATHER_SEASONS_CYCLICAL_NAME,
 )
-
-from evaluation import (
-    evaluate_models,
-    calculate_weather_improvement,
-    compare_weather_distributions,
-    print_results,
-    print_weather_improvement
-)
-
 from visualization import (
     plot_hourly_demand,
     plot_weekday_demand,
@@ -40,142 +25,89 @@ from visualization import (
     plot_model_performance,
     plot_predictions,
     plot_prediction_week,
-    plot_residuals
+    plot_residuals,
 )
 
 
+SRC_DIR = Path(__file__).resolve().parent
+DATA_PATH = SRC_DIR / "data" / "SeoulBikeData.csv"
+
+
+def print_weather_improvement(results):
+    lookup = results.set_index("Model")
+    old = lookup.loc[CALENDAR_CYCLICAL_NAME]
+    new = lookup.loc[CALENDAR_WEATHER_CYCLICAL_NAME]
+    print(
+        f"MAE improvement: {old['MAE'] - new['MAE']:.2f} "
+        f"({(old['MAE'] - new['MAE']) / old['MAE'] * 100:.2f}%)"
+    )
+    print(
+        f"RMSE improvement: {old['RMSE'] - new['RMSE']:.2f} "
+        f"({(old['RMSE'] - new['RMSE']) / old['RMSE'] * 100:.2f}%)"
+    )
+
+
 def main():
-    data_path = (
-        Path(__file__).parent
-        / "data"
-        / "SeoulBikeData.csv"
-    )
-    
-    train, validation, test, info = prepare_dataset(
-        data_path
-    )
-
-    y_validation = validation[TARGET]
-
-    baseline_model = fit_hourly_baseline(train)
-
-    baseline_predictions = predict_hourly_baseline(
-        baseline_model,
-        validation
-    )
-
-    weekend_model = fit_weekend_hourly_baseline(train)
-    weekend_predictions = predict_weekend_hourly_baseline(
-        weekend_model,
-        validation
-    )
-
-    calendar_model = fit_calendar_model(train)
-
-    calendar_predictions = predict_calendar_model(
-        calendar_model,
-        validation
-    )
-
-    weather_model = fit_weather_model(train)
-
-    weather_predictions = predict_weather_model(
-        weather_model,
-        validation
-    )
-
-    calendar_model_with_seasons = fit_calendar_model_with_seasons(train)
-    calendar_predictions_with_seasons = predict_calendar_model_with_seasons(
-        calendar_model_with_seasons,
-        validation
-    )
-
-    weather_model_with_seasons = fit_weather_model_with_seasons(train)
-    weather_predictions_with_seasons = predict_weather_model_with_seasons(
-        weather_model_with_seasons,
-        validation
-    )
-
-    results = evaluate_models(
-        y_validation,
-        baseline_predictions,
-        calendar_predictions,
-        weather_predictions,
-        weekend_predictions=weekend_predictions,
-        calendar_predictions_with_seasons=calendar_predictions_with_seasons,
-        weather_predictions_with_seasons=weather_predictions_with_seasons
-    )
-
-    improvement = calculate_weather_improvement(
-        results
-    )
-
-    weather_comparison = compare_weather_distributions(
-        train,
-        validation
-    )
+    experiment = BikeDemandExperiment(DATA_PATH)
+    results, predictions = experiment.run_linear_models()
 
     print("\nModel Results")
-    print_results(results)
+    print(results.to_string(index=False))
 
     print("\nValue of Weather Information")
-    print_weather_improvement(improvement)
+    print_weather_improvement(results)
 
     print("\nTraining vs October Weather")
+    weather_comparison = compare_weather_distributions(
+        experiment.train,
+        experiment.validation,
+    )
     print(weather_comparison.round(2))
 
-    plot_hourly_demand(train)
-
-    plot_weekday_demand(train)
-
-    plot_hour_weekday_demand(train)
-
-    plot_seasonal_demand(train)
-
-    plot_temperature_demand(train)
-
-    plot_rainfall_demand(train)
-
-    plot_rain_vs_no_rain(train)
-
+    plot_hourly_demand(experiment.train)
+    plot_weekday_demand(experiment.train)
+    plot_hour_weekday_demand(experiment.train)
+    plot_seasonal_demand(experiment.train)
+    plot_temperature_demand(experiment.train)
+    plot_rainfall_demand(experiment.train)
+    plot_rain_vs_no_rain(experiment.train)
     plot_weather_correlations(
-        train,
-        WEATHER_FEATURES
+        experiment.train,
+        WEATHER_FEATURES,
     )
-
     plot_temperature_shift(
-        train,
-        validation
+        experiment.train,
+        experiment.validation,
     )
+    plot_model_performance(results)
 
-    plot_model_performance(
-        results
-    )
+    baseline = predictions[HOURLY_BASELINE_NAME]
+    calendar = predictions[CALENDAR_CYCLICAL_NAME]
+    weather = predictions[
+        CALENDAR_WEATHER_SEASONS_CYCLICAL_NAME
+    ]
 
     plot_predictions(
-        validation,
-        baseline_predictions,
-        calendar_predictions,
-        weather_predictions
+        experiment.validation,
+        baseline,
+        calendar,
+        weather,
     )
-
     plot_prediction_week(
-        validation,
-        baseline_predictions,
-        calendar_predictions,
-        weather_predictions
+        experiment.validation,
+        baseline,
+        calendar,
+        weather,
     )
-
     plot_residuals(
-        y_validation,
-        calendar_predictions,
-        "Calendar Model Residuals"
+        experiment.y_validation,
+        calendar,
+        "Calendar-Only Cyclical Linear Regression Residuals",
     )
-
     plot_residuals(
-        y_validation,
-        weather_predictions,
-        "Calendar + Weather Model Residuals"
+        experiment.y_validation,
+        weather,
+        "Calendar + Weather + Seasons Cyclical Linear Regression Residuals",
     )
 
 
