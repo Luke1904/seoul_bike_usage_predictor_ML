@@ -1,4 +1,4 @@
-name: MACHINE_LEARNING
+name: seoul-bike-predictor
 
 channels:
   - conda-forge
